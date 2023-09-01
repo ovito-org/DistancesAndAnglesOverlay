@@ -3,13 +3,13 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "[[PackageName]]"
-version = "[[Version number]]"
-description = "[[Short description]]"
+name = "MeasureDistancesAndAnglesOverlay"
+version = "2023.0"
+description = "Measure both distances and angles between particles and display them as an overlay in the viewport."
 keywords = ["ovito", "ovito-extension"]
-authors = [{name = "[[Author 1 name]]", email = "[[Author 1 email]]"}, {name = "[[Author 2 name]]", email = "[[Author 2 email]]"}]
-maintainers = [{name = "[[Maintainer 1 name]]", email = "[[Maintainer 1 email]]"}]
-license = {text = "[[License]]"}
+authors = [{name = "Daniel Utt", email = "utt@ovito.org"}]
+maintainers = [{name = "Daniel Utt", email = "utt@ovito.org"}]
+license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.7"
 dependencies = [
@@ -17,10 +17,10 @@ dependencies = [
 ]
 
 [project.urls]
-repository = "[[Repository Link]]"
+repository = "https://github.com/nnn911/DistancesAndAnglesOverlay"
 
 [project.entry-points.'OVITO.ViewportOverlay']
-"Human Readable Viewport Overlay Name" = "[[PackageName]]:[[ViewportOverlayName]]"
+"Measure distances and angles overlay" = "MeasureDistancesAndAnglesOverlay:MeasureDistancesAndAnglesOverlay"
 
 [tool.setuptools.packages.find]
 where = ["src"]
