@@ -23,6 +23,7 @@ class MeasureDistancesAndAnglesOverlay(ViewportOverlayInterface):
     text_color = ColorTrait((0.0, 0.0, 0.0), label="Text color")
     outline_width = Range(low=0, high=None, value=0, label="Outline width")
     outline_color = ColorTrait((1.0, 1.0, 1.0), label="Outline color")
+    show_distances = Bool(True, label="Show distances")
     distance_label_format = Str("{:.3f}", label="Number format (distance)")
     # show_background = Bool(False, label="Background")
     # background_color = ColorTrait(value=(0, 0, 0), label="Background color")
@@ -80,16 +81,17 @@ class MeasureDistancesAndAnglesOverlay(ViewportOverlayInterface):
         #         ),
         #         "south west",
         #     )
-        canvas.draw_text(
-            self.distance_label_format.format(np.linalg.norm(dist)),
-            font_size=self.font_size,
-            color=self.text_color,
-            outline_width=self.outline_width,
-            outline_color=self.outline_color,
-            pos=text_pos,
-            anchor="south",
-            rotation=text_angle,
-        )
+        if self.show_distances:
+            canvas.draw_text(
+                self.distance_label_format.format(np.linalg.norm(dist)),
+                font_size=self.font_size,
+                color=self.text_color,
+                outline_width=self.outline_width,
+                outline_color=self.outline_color,
+                pos=text_pos,
+                anchor="south",
+                rotation=text_angle,
+            )
 
         screen_pos_painter = np.copy(screen_pos_proj)
         screen_pos_painter[:, 1] = 1 - screen_pos_proj[:, 1]
