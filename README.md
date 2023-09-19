@@ -5,7 +5,7 @@ Measure both distances and angles between particles and display them as an overl
 TBD
 
 ## Parameters 
-- "Particle IDs" | `particle_ids`: List of particle identifiers used as modifier input. The list is traversed in order and distances are measured between consecutive particles. If the last particle is equal to the first one, all interior angles will be measured.
+- "Particle IDs" | `particle_ids`: List of *particle identifiers* used as modifier input. The list is traversed in order and distances are measured between consecutive particles. If the last particle is equal to the first one, all interior angles will be measured. If *particle identifiers* are not present in the current data collection *particle indices* will be used as a fallback.
 - "Line width" | `line_width`: Width (in pixel) of all lines. Default = 3.
 - "Line color" | `line_color`: Color of all lines. Default = (0, 0, 0).
 - "Font size" | `font_size`: Font size for all text labels. Default = 0.05.
@@ -13,8 +13,8 @@ TBD
 - "Outline width" | `outline_width`: Width (in pixel) of the text outline. A width of `0` corresponds to no outline. Default = 0.
 - "Show distances" | `show_distances`: Show distances between particles. Default = True.
 - "Number format (distance)" | `distance_label_format`: Format specifier for the particle-particle distances. Default = "{:.3f}".
-- "Show angles" | `show_angles`: Show angles between particles. Default = True.
-- "Arc distance (%)" | `arc_distance`: Distance (in % of the particle-particle distance) in which the arc indicating the angles is displayed. Default = 20.
+- "Show angles" | `show_angles`: Show angles between particles. Default = False.
+- "Arc distance" | `arc_distance`: Distance (in % of the particle-particle distance) in which the arc indicating the angles is displayed. Default = 0.2.
 - "Number format (angles)" | `angle_format`: Format specifier for the angle measurements. Default = "{:.1f} °".
 
 ## Example

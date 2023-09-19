@@ -10,26 +10,47 @@ from ovito.qt_compat import QtGui
 from traits.api import Float, Int, Range, List, Bool, Str
 from ovito.traits import ColorTrait
 
-
 # IMAGE = QtGui.QImage(1, 1, QtGui.QImage.Format_RGBA8888)
 # IMAGECOLOR = (-1, -1, -1)
 
 
 class MeasureDistancesAndAnglesOverlay(ViewportOverlayInterface):
-    particle_ids = List(Int, label="Particle IDs")
-    line_width = Float(3, label="Line width")
-    line_color = ColorTrait((0.0, 0.0, 0.0), label="Line color")
-    font_size = Float(0.05, label="Font size")
-    text_color = ColorTrait((0.0, 0.0, 0.0), label="Text color")
-    outline_width = Range(low=0, high=None, value=0, label="Outline width")
-    outline_color = ColorTrait((1.0, 1.0, 1.0), label="Outline color")
-    show_distances = Bool(True, label="Show distances")
-    distance_label_format = Str("{:.3f}", label="Number format (distance)")
+    particle_ids = List(
+        Int,
+        label="Particle IDs",
+        ovito_placeholder="‹empty›",
+        ovito_group="Input particles",
+    )
+    line_width = Float(3, label="Line width", ovito_group="Visual elements")
+    line_color = ColorTrait(
+        (0.0, 0.0, 0.0), label="Line color", ovito_group="Visual elements"
+    )
+    font_size = Float(0.05, label="Font size", ovito_group="Visual elements")
+    text_color = ColorTrait(
+        (0.0, 0.0, 0.0), label="Text color", ovito_group="Visual elements"
+    )
+    outline_width = Range(
+        low=0, high=None, value=0, label="Outline width", ovito_group="Visual elements"
+    )
+    outline_color = ColorTrait(
+        (1.0, 1.0, 1.0), label="Outline color", ovito_group="Visual elements"
+    )
+    show_distances = Bool(True, label="Show distances", ovito_group="Visual elements")
+    distance_label_format = Str(
+        "{:.3f}", label="Number format (distance)", ovito_group="Visual elements"
+    )
     # show_background = Bool(False, label="Background")
     # background_color = ColorTrait(value=(0, 0, 0), label="Background color")
-    show_angles = Bool(True, label="Show angles")
-    arc_distance = Range(low=0.0, high=100, value=20, label="Arc distance (%)")
-    angle_format = Str("{:.1f} °", label="Number format (angles)")
+    show_angles = Bool(False, label="Show angles", ovito_group="Angles")
+    arc_distance = Range(
+        low=0.0,
+        high=1.0,
+        value=0.2,
+        ovito_unit="percent",
+        label="Arc distance",
+        ovito_group="Angles",
+    )
+    angle_format = Str("{:.1f} °", label="Number format (angles)", ovito_group="Angles")
 
     # def draw_background(self, canvas, pos, size, anchor):
     #     global IMAGE, IMAGECOLOR
@@ -50,6 +71,8 @@ class MeasureDistancesAndAnglesOverlay(ViewportOverlayInterface):
         screen_pos_proj[1] = canvas.project_location(
             data.particles["Position"][particle_index_b]
         )
+        if np.any(np.isnan(screen_pos_proj)):
+            return
 
         screen_pos_proj_pxl = screen_pos_proj * np.array(canvas.logical_size)
         text_pos = np.mean(screen_pos_proj, axis=0)
@@ -120,6 +143,8 @@ class MeasureDistancesAndAnglesOverlay(ViewportOverlayInterface):
         screen_pos_proj[0] = canvas.project_location(vc)
         screen_pos_proj[1] = canvas.project_location(v1)
         screen_pos_proj[2] = canvas.project_location(v2)
+        if np.any(np.isnan(screen_pos_proj)):
+            return
 
         screen_pos_painter = np.copy(screen_pos_proj)
         screen_pos_painter[:, 1] = 1 - screen_pos_proj[:, 1]
@@ -127,7 +152,7 @@ class MeasureDistancesAndAnglesOverlay(ViewportOverlayInterface):
 
         l1 = np.linalg.norm(screen_pos_painter[1] - screen_pos_painter[0])
         l2 = np.linalg.norm(screen_pos_painter[2] - screen_pos_painter[0])
-        radius = np.min((l1, l2)) * self.arc_distance / 100.0
+        radius = np.min((l1, l2)) * self.arc_distance
 
         bbox = QRect(
             screen_pos_painter[0, 0] - radius,
@@ -217,14 +242,14 @@ class MeasureDistancesAndAnglesOverlay(ViewportOverlayInterface):
         frame: int,
         **kwargs,
     ):
+        pidKey = "Particle Identifier"
         if "Particle Identifier" not in data.particles:
-            raise KeyError(
-                "'Particle Identifier' particle property not found. Please add a 'Particle Identifier' particle property."
+            print(
+                "Warning: 'Particle Identifier' not found - will use Particle Indices instead."
             )
+            pidKey = ""
         if len(np.unique(self.particle_ids)) < 2:
-            raise ValueError(
-                "At least 2 particle identifieres are required to show length."
-            )
+            raise ValueError("At least 2 'Particle IDs' are required to show length.")
 
         with canvas.qt_painter() as painter:
             pen = QtGui.QPen(QtGui.QPen())
@@ -234,15 +259,20 @@ class MeasureDistancesAndAnglesOverlay(ViewportOverlayInterface):
 
             for i in range(1, len(self.particle_ids)):
                 if i == 1:
-                    particle_index_a = np.where(
-                        data.particles["Particle Identifier"]
-                        == self.particle_ids[i - 1]
-                    )[0][0]
+                    if pidKey:
+                        particle_index_a = np.where(
+                            data.particles[pidKey] == self.particle_ids[i - 1]
+                        )[0][0]
+                    else:
+                        particle_index_a = self.particle_ids[i - 1]
                 else:
                     particle_index_a = particle_index_b
-                particle_index_b = np.where(
-                    data.particles["Particle Identifier"] == self.particle_ids[i]
-                )[0][0]
+                if pidKey:
+                    particle_index_b = np.where(
+                        data.particles["Particle Identifier"] == self.particle_ids[i]
+                    )[0][0]
+                else:
+                    particle_index_b = self.particle_ids[i]
 
                 self.draw_single_step(
                     data, canvas, painter, particle_index_a, particle_index_b
@@ -259,22 +289,29 @@ class MeasureDistancesAndAnglesOverlay(ViewportOverlayInterface):
                 self.particle_ids.append(self.particle_ids[1])
             for i in range(2, len(self.particle_ids)):
                 if i == 2:
-                    particle_index_a = np.where(
-                        data.particles["Particle Identifier"]
-                        == self.particle_ids[i - 2]
-                    )[0][0]
+                    if pidKey:
+                        particle_index_a = np.where(
+                            data.particles[pidKey] == self.particle_ids[i - 2]
+                        )[0][0]
+                    else:
+                        particle_index_a = self.particle_ids[i - 2]
                 else:
                     particle_index_a = particle_index_b
                 if i == 2:
-                    particle_index_b = np.where(
-                        data.particles["Particle Identifier"]
-                        == self.particle_ids[i - 1]
-                    )[0][0]
+                    if pidKey:
+                        particle_index_b = np.where(
+                            data.particles[pidKey] == self.particle_ids[i - 1]
+                        )[0][0]
+                    else:
+                        particle_index_b = self.particle_ids[i - 1]
                 else:
                     particle_index_b = particle_index_c
-                particle_index_c = np.where(
-                    data.particles["Particle Identifier"] == self.particle_ids[i]
-                )[0][0]
+                if pidKey:
+                    particle_index_c = np.where(
+                        data.particles[pidKey] == self.particle_ids[i]
+                    )[0][0]
+                else:
+                    particle_index_c = self.particle_ids[i]
                 self.draw_single_angle(
                     data,
                     canvas,
