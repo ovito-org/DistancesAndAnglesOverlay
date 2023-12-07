@@ -17,7 +17,7 @@ dependencies = [
 ]
 
 [project.urls]
-repository = "https://github.com/nnn911/DistancesAndAnglesOverlay"
+repository = "https://github.com/ovito-org/DistancesAndAnglesOverlay"
 
 [project.entry-points.'OVITO.ViewportOverlay']
 "Measure distances and angles overlay" = "MeasureDistancesAndAnglesOverlay:MeasureDistancesAndAnglesOverlay"
