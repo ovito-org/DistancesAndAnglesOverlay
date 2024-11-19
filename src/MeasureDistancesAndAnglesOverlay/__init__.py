@@ -50,7 +50,9 @@ class MeasureDistancesAndAnglesOverlay(ViewportOverlayInterface):
         label="Arc distance",
         ovito_group="Angles",
     )
-    angle_format = Str("{:.1f} °", label="Number format (angles)", ovito_group="Angles")
+    angle_label_format = Str(
+        "{:.1f} °", label="Number format (angles)", ovito_group="Angles"
+    )
 
     # def draw_background(self, canvas, pos, size, anchor):
     #     global IMAGE, IMAGECOLOR
@@ -226,7 +228,7 @@ class MeasureDistancesAndAnglesOverlay(ViewportOverlayInterface):
         #         "south west",
         #     )
         canvas.draw_text(
-            self.angle_format.format(np.rad2deg(angle)),
+            self.angle_label_format.format(np.rad2deg(angle)),
             font_size=self.font_size,
             color=self.text_color,
             outline_width=self.outline_width,

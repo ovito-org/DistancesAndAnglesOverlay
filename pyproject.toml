@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "MeasureDistancesAndAnglesOverlay"
-version = "2023.1"
+version = "2024.0"
 description = "Measure both distances and angles between particles and display them as an overlay in the viewport."
 keywords = ["ovito", "ovito-extension"]
 authors = [{name = "Daniel Utt", email = "utt@ovito.org"}]
